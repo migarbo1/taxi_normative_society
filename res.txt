@@ -1,0 +1,82 @@
+Driver taxi_driver0 starting at initial state DriverState.WAITING
+[taxi_driver0] waiting
+Driver taxi_driver1 starting at initial state DriverState.WAITING
+[taxi_driver1] waiting
+[taxi_driver0] queue: ['taxi_driver0', 'taxi_driver1', 'taxi_driver2']
+[taxi_driver0] looking for clients
+Driver taxi_driver2 starting at initial state DriverState.WAITING
+[taxi_driver2] waiting
+[taxi_driver1] queue: ['taxi_driver0', 'taxi_driver1', 'taxi_driver2', 'taxi_driver3']
+[taxi_driver2] queue: ['taxi_driver0', 'taxi_driver1', 'taxi_driver2', 'taxi_driver3']
+Driver taxi_driver3 starting at initial state DriverState.WAITING
+[taxi_driver3] waiting
+[taxi_driver2] waiting
+[taxi_driver1@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver0] picking up
+[taxi_driver1] waiting
+[taxi_driver0] on service
+[taxi_driver1] queue: ['taxi_driver1', 'taxi_driver2', 'taxi_driver3']
+[taxi_driver1] looking for clients
+[taxi_driver3] queue: ['taxi_driver1', 'taxi_driver2', 'taxi_driver3']
+[taxi_driver2] queue: ['taxi_driver1', 'taxi_driver2', 'taxi_driver3']
+[taxi_driver0] at destination
+[taxi_driver3@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver2@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver3] waiting
+[taxi_driver1] picking up
+[taxi_driver2] waiting
+[taxi_driver1] on service
+[taxi_driver2] queue: ['taxi_driver2', 'taxi_driver3']
+[taxi_driver2] looking for clients
+[taxi_driver3] queue: ['taxi_driver2', 'taxi_driver3']
+[taxi_driver3@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver2] picking up
+[taxi_driver3] waiting
+[taxi_driver2] on service
+[taxi_driver0] waiting
+[taxi_driver1] at destination
+[taxi_driver3] queue: ['taxi_driver3', 'taxi_driver0']
+[taxi_driver3] looking for clients
+[taxi_driver0] queue: ['taxi_driver3', 'taxi_driver0']
+[taxi_driver0@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver3] picking up
+[taxi_driver0] waiting
+[taxi_driver3] on service
+[taxi_driver1] waiting
+[taxi_driver0] queue: ['taxi_driver0', 'taxi_driver1']
+[taxi_driver0] looking for clients
+[taxi_driver1] queue: ['taxi_driver0', 'taxi_driver1']
+[taxi_driver2] at destination
+[taxi_driver1@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver1] waiting
+[taxi_driver0] picking up
+[taxi_driver2] waiting
+[taxi_driver0] on service
+[taxi_driver3] at destination
+[taxi_driver1] queue: ['taxi_driver1', 'taxi_driver2']
+[taxi_driver1] looking for clients
+[taxi_driver2] queue: ['taxi_driver1', 'taxi_driver2']
+[taxi_driver2@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver1] picking up
+[taxi_driver2] waiting
+[taxi_driver1] on service
+[taxi_driver2] queue: ['taxi_driver2', 'taxi_driver3']
+[taxi_driver2] looking for clients
+[taxi_driver3] waiting
+[taxi_driver3] queue: ['taxi_driver2', 'taxi_driver3']
+[taxi_driver0] at destination
+[taxi_driver3@gtirouter.dsic.upv.es]: Action jump_queue not performed due to normative constrictions
+[taxi_driver2] picking up
+[taxi_driver3] waiting
+[taxi_driver2] on service
+[taxi_driver3] queue: ['taxi_driver3']
+[taxi_driver3] looking for clients
+[taxi_driver1] at destination
+[taxi_driver2] at destination
+[taxi_driver0] waiting
+[taxi_driver3] picking up
+[taxi_driver1] waiting
+[taxi_driver3] on service
+[taxi_driver0] queue: ['taxi_driver0', 'taxi_driver1']
+[taxi_driver0] looking for clients
+[taxi_driver1] queue: ['taxi_driver0', 'taxi_driver1']
