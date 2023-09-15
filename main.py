@@ -9,13 +9,18 @@ from taxi_driver_agent import TaxiDriverAgent
 import spade
 from queue_utils import TaxiQueue
 from domain_and_roles import *
+import random
+
+
+random.seed(33)
 
 
 def create_norms():
     norms = [
         Norm('no_jump', NormType.PROHIBITION, jump_queue_norm, inviolable=False, domain=Domain.QUEUE, roles=[Role.WORKING_DRIVER]),
         Norm('no_overwork', NormType.PROHIBITION, max_working_hours_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.WORKING_DRIVER]),
-        Norm('no_under-rest', NormType.PROHIBITION, min_resting_time_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.RESTING_DRIVER])
+        Norm('no_under-rest', NormType.PROHIBITION, min_resting_time_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.RESTING_DRIVER]),
+        Norm('no_exceed_capacity', NormType.PROHIBITION, capacity_norm, inviolable=False, domain=Domain.QUEUE, roles=[Role.WORKING_DRIVER])
     ]
     return norms
 
@@ -23,7 +28,8 @@ def create_norms():
 def create_actions():
     actions = [
         NormativeAction('jump_queue', action_fn=jump_queue, domain=Domain.QUEUE),
-        NormativeAction('resume_work', action_fn=resume_work, domain=Domain.SCHEDULE)
+        NormativeAction('resume_work', action_fn=resume_work, domain=Domain.SCHEDULE),
+        NormativeAction('pick_clients', action_fn=pickup_clients, domain=Domain.QUEUE)
     ]
     return actions
 

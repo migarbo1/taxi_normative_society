@@ -4,13 +4,11 @@ from spade.behaviour import FSMBehaviour, State
 import asyncio
 from domain_and_roles import Role
 
-#TODO: update spade_norms version so perform returns whether the action has been done or not
-
 class DriverState(Enum):
     WAITING = 0
     PICKING_UP = 1
     ON_SERVICE = 2
-    AT_DESTINATION = 3
+    JOINING_QUEUE = 3
     RESTING = 4
 
 
@@ -24,7 +22,9 @@ class Waiting(State):
 
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] waiting")
-        await asyncio.sleep(random.randint(1,2))
+        queue_waittime = random.randint(1,2)
+        await asyncio.sleep(queue_waittime)
+        self.agent.add_worked_hours(queue_waittime)
 
         print(f"[{self.agent.jid.localpart}] queue: {self.agent.taxi_queue.q}")
 
@@ -32,25 +32,26 @@ class Waiting(State):
             if self.agent.taxi_queue.is_in_pickup_position(self.agent.jid.localpart):
                 # simulate waiting for client
                 print(f"[{self.agent.jid.localpart}] looking for clients")
-                await asyncio.sleep(random.randint(2, 4))
-                #TODO: dynamic client num
-                #TODO: max capacity
+                client_lookup_waittime = random.randint(2, 4)
+                await asyncio.sleep(client_lookup_waittime)
+                self.agent.add_worked_hours(client_lookup_waittime)
                 self.set_next_state(DriverState.PICKING_UP)
             else:
-                if True: #TODO: jumping condition
-                    await self.agent.normative.perform("jump_queue")
-                else:
+                # TODO: logic for when to jump queue. For now by default is always tried
+                done, _ = await self.agent.normative.perform("jump_queue")
+                if not done:
                     self.set_next_state(DriverState.WAITING)
-                self.set_next_state(DriverState.WAITING)
+                
 
 
 class PickingUp(State):
 
     async def run(self) -> None:
-        async with self.agent.q_semaphore:
-            print(f"[{self.agent.jid.localpart}] picking up")
-            self.agent.taxi_queue.remove_from_queue(self.agent.jid.localpart)
-            self.set_next_state(DriverState.ON_SERVICE)
+        print(f"[{self.agent.jid.localpart}] picking up state")
+        clients = random.randint(1,10)
+        done, _ = self.agent.normative.perform('pick_clients', clients)
+        if not done:
+            self.set_next_state(DriverState.JOINING_QUEUE)
 
 
 class OnService(State):
@@ -59,20 +60,18 @@ class OnService(State):
         print(f"[{self.agent.jid.localpart}] on service")
         duration = random.randint(4, 7)
         await asyncio.sleep(duration)
-        self.agent.worked_hours += duration
-        self.set_next_state(DriverState.AT_DESTINATION)
+        self.agent.add_worked_hours(duration)
+        self.set_next_state(DriverState.JOINING_QUEUE)
 
 
-class AtDestination(State):
+class JoiningQueue(State):
     
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] at destination")
         duration = random.randint(3, 5)
         await asyncio.sleep(duration)
-        self.agent.worked_hours += float(duration)/5
-        self.agent.earned_money += 5 #TODO: price depending on client number
-        
-        #TODO: replace with working hours Norm
+        self.agent.add_worked_hours(duration)
+        self.agent.earned_money += 2 * self.agent.clients_picked
 
         done, _= await self.agent.normative.perform('resume_work')
         if not done:
@@ -86,5 +85,6 @@ class Resting(State):
         done, _ = await self.agent.normative.perform('resume_work')
         if not done:
             await asyncio.sleep(1)
-            self.agent.current_rest_time += 10
+            self.agent.rest()
+            self.agent.reset_worked_hours()
             self.set_next_state(DriverState.RESTING)
