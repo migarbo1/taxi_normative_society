@@ -2,8 +2,9 @@ from enum import Enum
 import random
 from spade.behaviour import FSMBehaviour, State
 import asyncio
-import queue_utils as qu
+from domain_and_roles import Role
 
+#TODO: update spade_norms version so perform returns whether the action has been done or not
 
 class DriverState(Enum):
     WAITING = 0
@@ -37,7 +38,7 @@ class Waiting(State):
                 self.set_next_state(DriverState.PICKING_UP)
             else:
                 if True: #TODO: jumping condition
-                    await self.agent.normative.perform("jump_queue", self.agent)
+                    await self.agent.normative.perform("jump_queue")
                 else:
                     self.set_next_state(DriverState.WAITING)
                 self.set_next_state(DriverState.WAITING)
@@ -68,23 +69,22 @@ class AtDestination(State):
         print(f"[{self.agent.jid.localpart}] at destination")
         duration = random.randint(3, 5)
         await asyncio.sleep(duration)
-        self.agent.worked_hours += duration
+        self.agent.worked_hours += float(duration)/5
         self.agent.earned_money += 5 #TODO: price depending on client number
         
         #TODO: replace with working hours Norm
-        if self.agent.worked_hours >= 30:
-            self.set_next_state(DriverState.RESTING)
-        else:
-            async with self.agent.q_semaphore:
-                self.agent.taxi_queue.add_to_end_of_queue(self.agent.jid.localpart)
-                self.set_next_state(DriverState.WAITING)
 
+        done, _= await self.agent.normative.perform('resume_work')
+        if not done:
+            self.agent.role = Role.RESTING_DRIVER
+            self.set_next_state(DriverState.RESTING)
 
 class Resting(State):
 
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] resting")
-        await asyncio.sleep(3)
-        async with self.agent.q_semaphore:
-            self.agent.taxi_queue.add_to_end_of_queue(self.agent.jid.localpart)
-            self.set_next_state(DriverState.WAITING)
+        done, _ = await self.agent.normative.perform('resume_work')
+        if not done:
+            await asyncio.sleep(1)
+            self.agent.current_rest_time += 10
+            self.set_next_state(DriverState.RESTING)

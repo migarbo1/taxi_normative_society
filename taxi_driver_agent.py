@@ -9,7 +9,7 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         self.q_semaphore = semaphore
         self.clients_picked = 0
         self.worked_hours = 0
-        self.rest_time = 0
+        self.current_rest_time = 0
         self.earned_money = 0
         self.fatigue = 0
         self.reputation = 50
@@ -34,5 +34,6 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         fsmb.add_transition(source=DriverState.AT_DESTINATION, dest=DriverState.WAITING)
         fsmb.add_transition(source=DriverState.AT_DESTINATION, dest=DriverState.RESTING)
         fsmb.add_transition(source=DriverState.RESTING, dest=DriverState.WAITING)
+        fsmb.add_transition(source=DriverState.RESTING, dest=DriverState.RESTING)
 
         self.add_behaviour(fsmb)
