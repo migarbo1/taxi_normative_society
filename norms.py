@@ -19,7 +19,7 @@ def min_resting_time_norm(agent):
     return NormativeActionStatus.ALLOWED
 
 
-def capacity_norm(agent, waiting_clients):
-    if agent.taxi_capacity < waiting_clients:
+def capacity_norm(agent):
+    if agent.taxi_capacity < agent.clients_at_sight:
         return NormativeActionStatus.FORBIDDEN
     return NormativeActionStatus.ALLOWED

@@ -22,6 +22,7 @@ class TaxiDriverAgent(NormativeMixin, Agent):
 
         self.taxi_capacity = 4
         self.clients_picked = 0
+        self.clients_at_sight = 0
 
         self.taxi_queue = queue
         self.taxi_queue.add_to_end_of_queue(self.jid.localpart)

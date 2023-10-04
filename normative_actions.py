@@ -19,9 +19,10 @@ async def resume_work(agent):
         agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.WAITING)
 
 
-async def pickup_clients(agent, clients):
+async def pickup_clients(agent):
     async with agent.q_semaphore:
             agent.taxi_queue.remove_from_queue(agent.jid.localpart)
-            agent.clients_picked = clients
+            agent.clients_picked = agent.clients_at_sight
+            agent.clients_at_sight = 0
             current_state_name = agent.behaviours[0].current_state
             agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.ON_SERVICE)
