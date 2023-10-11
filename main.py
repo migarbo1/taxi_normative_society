@@ -5,11 +5,14 @@ from spade_norms.actions.normative_action import NormativeAction
 from spade_norms.norms.norm import Norm
 from spade_norms.norms.norm_enums import NormType
 from spade_norms.engines.norm_engine import NormativeEngine
+from reasoning_engines import *
 from taxi_driver_agent import TaxiDriverAgent
 import spade
 from queue_utils import TaxiQueue
 from domain_and_roles import *
 import random
+import asyncio
+from norm_callbacks import *
 
 
 random.seed(33)
@@ -17,10 +20,10 @@ random.seed(33)
 
 def create_norms():
     norms = [
-        Norm('no_jump', NormType.PROHIBITION, jump_queue_norm, inviolable=False, domain=Domain.QUEUE, roles=[Role.WORKING_DRIVER]),
-        Norm('no_overwork', NormType.PROHIBITION, max_working_hours_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.WORKING_DRIVER]),
-        Norm('no_under-rest', NormType.PROHIBITION, min_resting_time_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.RESTING_DRIVER]),
-        Norm('no_exceed_capacity', NormType.PROHIBITION, capacity_norm, inviolable=False, domain=Domain.QUEUE, roles=[Role.WORKING_DRIVER])
+        Norm('no_jump', NormType.PROHIBITION, jump_queue_norm, inviolable=False, domain=Domain.QUEUE, roles=[Role.WORKING_DRIVER], reward_cb=jump_queue_reward_callback, penalty_cb=jump_queue_penalty_callback),
+        Norm('no_overwork', NormType.PROHIBITION, max_working_hours_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.WORKING_DRIVER], reward_cb=max_working_hours_reward_callback, penalty_cb=max_working_hours_penalty_callback),
+        Norm('no_under-rest', NormType.PROHIBITION, min_resting_time_norm, inviolable=False, domain=Domain.SCHEDULE, roles=[Role.RESTING_DRIVER], penalty_cb=min_resting_time_penalty_callback),
+        Norm('no_exceed_capacity', NormType.PROHIBITION, capacity_norm, inviolable=True, domain=Domain.QUEUE, roles=[Role.WORKING_DRIVER], penalty_cb=max_capacity_penalty_callback)
     ]
     return norms
 
@@ -34,24 +37,37 @@ def create_actions():
     return actions
 
 
-async def main(num_agents = 4):
+async def main(num_agents = 2):
     taxi_queue = TaxiQueue()
     q_semaphore = asyncio.Semaphore(1)
 
     normative_engine = NormativeEngine(norm_list=create_norms())
+    agents = []
 
     for i in range(num_agents):
+        reasoning_engine = MoneyDrivenReasoningEngine() if i % 2 == 0 else None
         taxi_agent = TaxiDriverAgent(
             jid='taxi_driver{}@your.xmpp.server'.format(i), 
             password="password",
             queue=taxi_queue,
             semaphore = q_semaphore,
             normative_engine = normative_engine, 
+            reasoning_engine = reasoning_engine,
             actions = create_actions(),
             role=Role.WORKING_DRIVER
         )
-    
+
         await taxi_agent.start()
+
+        agents.append(taxi_agent)
+    
+    for i in range(240):
+        await asyncio.sleep(0.5)
+
+    for i in range(num_agents):
+        print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[1].fatigue}; reputation: {agents[i].reputation}")
+
+    exit()
 
 
 if __name__ == '__main__':

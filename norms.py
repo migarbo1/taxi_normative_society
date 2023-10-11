@@ -4,7 +4,9 @@ MAX_WORKING_HOURS = 4
 RESTING_MINS = 30
 
 def jump_queue_norm(agent):
-    return NormativeActionStatus.FORBIDDEN
+    if agent.taxi_queue.get_queue_pos(agent.jid.localpart) != 0:
+        return NormativeActionStatus.FORBIDDEN
+    return NormativeActionStatus.ALLOWED
 
 
 def max_working_hours_norm(agent):

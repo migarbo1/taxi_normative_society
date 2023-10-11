@@ -32,7 +32,7 @@ class Waiting(State):
             if self.agent.taxi_queue.is_in_pickup_position(self.agent.jid.localpart):
                 # simulate waiting for client
                 print(f"[{self.agent.jid.localpart}] looking for clients")
-                client_lookup_waittime = random.randint(2, 4)
+                client_lookup_waittime = random.randint(1, 3)
                 await asyncio.sleep(client_lookup_waittime)
                 self.agent.add_worked_hours(client_lookup_waittime)
                 self.set_next_state(DriverState.PICKING_UP)
@@ -46,10 +46,15 @@ class Waiting(State):
 class PickingUp(State):
 
     async def run(self) -> None:
-        print(f"[{self.agent.jid.localpart}] picking up state")
-        self.agent.clients_at_sight = random.randint(1,10)
-        done, _, _ = await self.agent.normative.perform('pick_clients')
+        self.agent.clients_at_sight = random.randint(1,6)
+        print(f"[{self.agent.jid.localpart}] picking up state: {self.agent.clients_at_sight} clients")
+        if random.randint(1, 99) > self.agent.reputation and self.agent.reputation < 60:
+            print(f"Clients rejected {self.agent.jid.localpart} because low reputation: {self.agent.reputation}")
+            done = False
+        else:
+            done, _, _ = await self.agent.normative.perform('pick_clients')
         if not done:
+            self.agent.clients_at_sight = 0
             async with self.agent.q_semaphore:
                 self.agent.taxi_queue.remove_from_queue(self.agent.jid.localpart)
             self.set_next_state(DriverState.JOINING_QUEUE)
@@ -59,6 +64,7 @@ class OnService(State):
 
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] on service")
+        #driving client to destination
         duration = random.randint(4, 7)
         await asyncio.sleep(duration)
         self.agent.add_worked_hours(duration)
@@ -69,6 +75,7 @@ class JoiningQueue(State):
     
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] joining queue")
+        #returning from destination to queue
         duration = random.randint(3, 5)
         await asyncio.sleep(duration)
         self.agent.add_worked_hours(duration)

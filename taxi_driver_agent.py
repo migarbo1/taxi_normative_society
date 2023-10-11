@@ -15,7 +15,10 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         
         self.earned_money = 0
         self.fatigue = 0
-        self.reputation = 50
+        self.reputation = 85
+
+        self.fatigue_ratio = 1
+        self.recovery_ratio = 1.6
 
         self.worked_hours = 0
         self.current_rest_time = 0
@@ -52,12 +55,12 @@ class TaxiDriverAgent(NormativeMixin, Agent):
 
     def add_worked_hours(self, amount):
         self.worked_hours += float(amount) / HOUR_CONVERSION
-        self.fatigue = self.worked_hours * FATIGUE_CONVERSION
+        self.fatigue = self.worked_hours * FATIGUE_CONVERSION * self.fatigue_ratio
 
 
     def rest(self):
         self.current_rest_time += 10
-        self.fatigue = min(0, self.fatigue - self.current_rest_time * 1.6)
+        self.fatigue = min(0, self.fatigue - self.current_rest_time * self.recovery_ratio)
 
 
     def reset_worked_hours(self):
