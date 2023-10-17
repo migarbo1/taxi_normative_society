@@ -61,8 +61,7 @@ async def main(num_agents = 2):
 
         agents.append(taxi_agent)
     
-    for i in range(240):
-        await asyncio.sleep(0.5)
+    await asyncio.sleep(24*60*1e-3)
 
     for i in range(num_agents):
         print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[1].fatigue}; reputation: {agents[i].reputation}")

@@ -3,7 +3,6 @@ from spade_norms.spade_norms import NormativeMixin
 from fsm_taxi_behaviour import *
 
 
-HOUR_CONVERSION = 5
 FATIGUE_CONVERSION = 8
 
 
@@ -59,7 +58,8 @@ class TaxiDriverAgent(NormativeMixin, Agent):
 
 
     def add_worked_time(self, amount):
-        self.worked_time += float(amount) / HOUR_CONVERSION
+        self.worked_time += amount
+        #TODO
         self.fatigue = self.worked_time * FATIGUE_CONVERSION * self.fatigue_ratio
 
 
@@ -70,18 +70,22 @@ class TaxiDriverAgent(NormativeMixin, Agent):
 
 
     def add_income(self):
+        applied_tax = 0
         applied_fare = 0
         # Long local trip
         if self.worked_time < 70e-3:
+            applied_tax = 2.3
             applied_fare = 0.41
         # Local trip
         if self.worked_time <= 50e-3: 
+            applied_tax = 1.15
             applied_fare = 0.36
         # Intercity
         if self.worked_time >= 70e-3:
+            applied_tax = 2.3
             applied_fare = 0.28
 
-        self.earned_money += self.worked_time * 1000 * applied_fare
+        self.earned_money += (applied_tax + self.worked_time * 1000 * applied_fare)
 
 
     def reset_worked_time(self):
@@ -90,3 +94,11 @@ class TaxiDriverAgent(NormativeMixin, Agent):
 
     def reset_rest_time(self):
         self.current_rest_time = 0
+
+
+    def increase_reputation(self, amount):
+        self.reputation = min(1, self.reputation + amount)
+
+
+    def decrease_reputation(self, amount):
+        self.reputation = max(0, self.reputation - amount)
