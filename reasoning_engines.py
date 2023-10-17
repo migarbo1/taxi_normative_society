@@ -7,7 +7,7 @@ class MoneyDrivenReasoningEngine(NormativeReasoningEngine):
 
     def inference(self, agent: Agent, norm_response: NormativeResponse):
         if norm_response.action.name == 'jump_queue':
-            if agent.earned_money < 15 and agent.worked_hours >= 6:
+            if agent.earned_money < 15 and agent.worked_time >= 6:
                 return True
             
         if norm_response.action.name == 'resume_work':
@@ -15,7 +15,7 @@ class MoneyDrivenReasoningEngine(NormativeReasoningEngine):
                 return True
             
         if norm_response.action.name == 'pick_clients':
-            if agent.earned_money < 8 and agent.worked_hours >= 12:
+            if agent.earned_money < 8 and agent.worked_time >= 12:
                 return True
             
         return norm_response.response_type == NormativeActionStatus.ALLOWED or norm_response.response_type == NormativeActionStatus.NOT_REGULATED

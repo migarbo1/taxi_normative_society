@@ -15,13 +15,14 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         
         self.earned_money = 0
         self.fatigue = 0
-        self.reputation = 85
+        self.reputation = 0.85
 
         self.fatigue_ratio = 1
         self.recovery_ratio = 1.6
 
-        self.worked_hours = 0
+        self.worked_time = 0
         self.current_rest_time = 0
+        self.trip_duration = 0
 
         self.taxi_capacity = 4
         self.clients_picked = 0
@@ -53,18 +54,38 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         self.add_behaviour(fsmb)
 
 
-    def add_worked_hours(self, amount):
-        self.worked_hours += float(amount) / HOUR_CONVERSION
-        self.fatigue = self.worked_hours * FATIGUE_CONVERSION * self.fatigue_ratio
+    def set_trip_duration(self, duration):
+        self.trip_duration = duration
 
 
-    def rest(self):
-        self.current_rest_time += 10
+    def add_worked_time(self, amount):
+        self.worked_time += float(amount) / HOUR_CONVERSION
+        self.fatigue = self.worked_time * FATIGUE_CONVERSION * self.fatigue_ratio
+
+
+    def rest(self, amount):
+        self.current_rest_time += amount
+        # TODO
         self.fatigue = min(0, self.fatigue - self.current_rest_time * self.recovery_ratio)
 
 
-    def reset_worked_hours(self):
-        self.worked_hours = 0
+    def add_income(self):
+        applied_fare = 0
+        # Long local trip
+        if self.worked_time < 70e-3:
+            applied_fare = 0.41
+        # Local trip
+        if self.worked_time <= 50e-3: 
+            applied_fare = 0.36
+        # Intercity
+        if self.worked_time >= 70e-3:
+            applied_fare = 0.28
+
+        self.earned_money += self.worked_time * 1000 * applied_fare
+
+
+    def reset_worked_time(self):
+        self.worked_time = 0
 
 
     def reset_rest_time(self):
