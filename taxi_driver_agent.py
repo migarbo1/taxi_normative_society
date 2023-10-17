@@ -8,9 +8,10 @@ FATIGUE_CONVERSION = 8
 
 class TaxiDriverAgent(NormativeMixin, Agent):
 
-    def __init__(self, queue = [], semaphore = None,*args, **kwargs):
+    def __init__(self, queue = [], semaphore = None, num_agents=10, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.q_semaphore = semaphore
+        self.num_agents = num_agents
         
         self.earned_money = 0
         self.fatigue = 0
@@ -34,12 +35,15 @@ class TaxiDriverAgent(NormativeMixin, Agent):
     async def setup(self) -> None:
         fsmb = DriverFSMBehaviour()
 
-        fsmb.add_state(name=DriverState.WAITING, state=Waiting(), initial=True)
+        fsmb.add_state(name=DriverState.SETUP, state=Setup(), initial=True)
+        fsmb.add_state(name=DriverState.WAITING, state=Waiting())
         fsmb.add_state(name=DriverState.PICKING_UP, state=PickingUp())
         fsmb.add_state(name=DriverState.ON_SERVICE, state=OnService())
         fsmb.add_state(name=DriverState.JOINING_QUEUE, state=JoiningQueue())
         fsmb.add_state(name=DriverState.RESTING, state=Resting())
 
+        fsmb.add_transition(source=DriverState.SETUP, dest=DriverState.SETUP)
+        fsmb.add_transition(source=DriverState.SETUP, dest=DriverState.WAITING)
         fsmb.add_transition(source=DriverState.WAITING, dest=DriverState.WAITING)
         fsmb.add_transition(source=DriverState.WAITING, dest=DriverState.PICKING_UP)
         fsmb.add_transition(source=DriverState.PICKING_UP, dest=DriverState.ON_SERVICE)

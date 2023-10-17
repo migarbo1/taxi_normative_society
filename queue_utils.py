@@ -17,3 +17,6 @@ class TaxiQueue():
 
     def add_to_start_of_queue(self, jid):
         self.q.insert(0, jid)
+
+    def len(self):
+        return len(self.q)

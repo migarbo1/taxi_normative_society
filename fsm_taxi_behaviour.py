@@ -6,6 +6,7 @@ from domain_and_roles import Role
 from norms import RESTING_MINS
 
 class DriverState(Enum):
+    SETUP = -1
     WAITING = 0
     PICKING_UP = 1
     ON_SERVICE = 2
@@ -15,8 +16,17 @@ class DriverState(Enum):
 
 class DriverFSMBehaviour(FSMBehaviour):
     async def on_start(self) -> None:
-        self.current_state = DriverState.WAITING
+        self.current_state = DriverState.SETUP
         print(f"Driver {self.agent.jid.localpart} starting at initial state {self.current_state}")
+
+class Setup(State):
+
+    async def run(self) -> None:
+        if self.agent.num_agents != self.agent.taxi_queue.len():
+            await asyncio.sleep(5e-3)
+            self.set_next_state(DriverState.SETUP)
+        else:
+            self.set_next_state(DriverState.WAITING)
 
 
 class Waiting(State):
