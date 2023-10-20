@@ -13,6 +13,7 @@ from domain_and_roles import *
 import random
 import asyncio
 from norm_callbacks import *
+from problem_constants import constants
 
 
 random.seed(33)
@@ -37,15 +38,15 @@ def create_actions():
     return actions
 
 
-async def main(num_agents = 2):
+async def main():
     taxi_queue = TaxiQueue()
     q_semaphore = asyncio.Semaphore(1)
 
     normative_engine = NormativeEngine(norm_list=create_norms())
     agents = []
 
-    for i in range(num_agents):
-        reasoning_engine = MoneyDrivenReasoningEngine() if i % 2 == 0 else None
+    for i in range(constants['num_of_agents']):
+        reasoning_engine = ComplexMoneyDrivenReasoningEngine() if i % 2 == 0 else None
         taxi_agent = TaxiDriverAgent(
             jid='taxi_driver{}@your.xmpp.server'.format(i), 
             password="password",
@@ -54,17 +55,19 @@ async def main(num_agents = 2):
             normative_engine = normative_engine, 
             reasoning_engine = reasoning_engine,
             actions = create_actions(),
-            role=Role.WORKING_DRIVER
+            role=Role.WORKING_DRIVER,
+            num_agents = constants['num_of_agents']
         )
 
         await taxi_agent.start()
+        taxi_agent.join_queue_first_time()
 
         agents.append(taxi_agent)
     
-    await asyncio.sleep(24*60*1e-3)
+    await asyncio.sleep(constants['simulation_time'])
 
-    for i in range(num_agents):
-        print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[1].fatigue}; reputation: {agents[i].reputation}")
+    for i in range(constants['num_of_agents']):
+        print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[i].fatigue}; reputation: {agents[i].reputation}")
 
     exit()
 

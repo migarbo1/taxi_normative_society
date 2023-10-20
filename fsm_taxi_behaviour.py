@@ -3,7 +3,7 @@ import random
 from spade.behaviour import FSMBehaviour, State
 import asyncio
 from domain_and_roles import Role
-from norms import RESTING_MINS
+from problem_constants import constants
 
 class DriverState(Enum):
     SETUP = -1
@@ -33,9 +33,8 @@ class Waiting(State):
 
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] waiting")
-        queue_waittime = 10e-3
-        await asyncio.sleep(queue_waittime)
-        self.agent.add_worked_time(queue_waittime)
+        await asyncio.sleep(constants['queue_waittime'])
+        self.agent.add_worked_time(constants['queue_waittime'])
 
         print(f"[{self.agent.jid.localpart}] queue: {self.agent.taxi_queue.q}")
 
@@ -43,12 +42,11 @@ class Waiting(State):
             if self.agent.taxi_queue.is_in_pickup_position(self.agent.jid.localpart):
                 # simulate waiting for client
                 print(f"[{self.agent.jid.localpart}] looking for clients")
-                client_lookup_waittime = random.uniform(5e-3, 15e-3)
+                client_lookup_waittime = random.uniform(constants['client_waittime_lb'], constants['client_waittime_ub'])
                 await asyncio.sleep(client_lookup_waittime)
                 self.agent.add_worked_time(client_lookup_waittime)
                 self.set_next_state(DriverState.PICKING_UP)
             else:
-                # TODO: logic for when to jump queue. For now by default is always tried
                 done, _, _ = await self.agent.normative.perform("jump_queue")
                 if not done:
                     self.set_next_state(DriverState.WAITING)
@@ -76,7 +74,7 @@ class OnService(State):
     async def run(self) -> None:
         print(f"[{self.agent.jid.localpart}] on service")
         #driving client to destination
-        duration = random.uniform(30e-3, 90e-3)
+        duration = random.uniform(constants['trip_lb'], constants['trip_ub'])
         await asyncio.sleep(duration)
         self.agent.set_trip_duration(duration)
         self.agent.add_worked_time(duration)
@@ -92,6 +90,7 @@ class JoiningQueue(State):
         await asyncio.sleep(return_duration)
         self.agent.add_worked_time(return_duration)
         self.agent.add_income()
+        self.agent.set_trip_duration(0)
 
         done, _, _ = await self.agent.normative.perform('resume_work')
         if not done:
@@ -105,9 +104,8 @@ class Resting(State):
         print(f"[{self.agent.jid.localpart}] resting")
         done, _, _ = await self.agent.normative.perform('resume_work')
         if not done:
-            upper_bound = 15e-3
-            lower_bound = min(RESTING_MINS-self.agent.current_rest_time, 5e-3)
-            rest_time = random.uniform(lower_bound, upper_bound)
+            lower_bound = min(constants['min_resting_time']-self.agent.current_rest_time, constants['rest_lb'])
+            rest_time = random.uniform(lower_bound, constants['rest_ub'])
             await asyncio.sleep(rest_time)
             self.agent.rest(rest_time)
             self.agent.reset_worked_time()

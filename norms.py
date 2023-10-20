@@ -1,7 +1,6 @@
 from spade_norms.norms.norm_enums import NormativeActionStatus
+from problem_constants import constants
 
-MAX_WORKING_TIME = 480e-3
-RESTING_MINS = 30e-3
 
 def jump_queue_norm(agent):
     if agent.taxi_queue.get_queue_pos(agent.jid.localpart) != 0:
@@ -10,13 +9,13 @@ def jump_queue_norm(agent):
 
 
 def max_working_hours_norm(agent):
-    if agent.worked_time >= MAX_WORKING_TIME:
+    if agent.worked_time >= constants['max_working_time']:
         return NormativeActionStatus.FORBIDDEN
     return NormativeActionStatus.ALLOWED
 
 
 def min_resting_time_norm(agent):
-    if agent.current_rest_time < RESTING_MINS:
+    if agent.current_rest_time < constants['min_resting_time']:
         return NormativeActionStatus.FORBIDDEN
     return NormativeActionStatus.ALLOWED
 

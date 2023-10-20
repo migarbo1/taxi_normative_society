@@ -22,6 +22,7 @@ async def resume_work(agent):
 async def pickup_clients(agent):
     print(f"[{agent.jid.localpart}] PICKING UP clients")
     async with agent.q_semaphore:
+            agent.sucessful_pickup_count +=1
             agent.taxi_queue.remove_from_queue(agent.jid.localpart)
             agent.clients_picked = agent.clients_at_sight
             agent.clients_at_sight = 0
