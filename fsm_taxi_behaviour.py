@@ -57,11 +57,12 @@ class PickingUp(State):
     async def run(self) -> None:
         self.agent.clients_at_sight = random.randint(1,6)
         print(f"[{self.agent.jid.localpart}] picking up state: {self.agent.clients_at_sight} clients")
-        if random.random() > self.agent.reputation and self.agent.reputation < 0.60:
-            print(f"Clients rejected {self.agent.jid.localpart} due to low reputation: {self.agent.reputation}")
-            done = False
-        else:
-            done, _, _ = await self.agent.normative.perform('pick_clients')
+        #if random.random() > self.agent.reputation and self.agent.reputation < 0.60:
+        #    print(f"Clients rejected {self.agent.jid.localpart} due to low reputation: {self.agent.reputation}")
+        #    done = False
+        #else:
+        #    done, _, _ = await self.agent.normative.perform('pick_clients')
+        done, _, _ = await self.agent.normative.perform('pick_clients')
         if not done:
             self.agent.clients_at_sight = 0
             async with self.agent.q_semaphore:

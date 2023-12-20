@@ -1,7 +1,7 @@
 constants = {
-    'simulation_time': 24*60e-3,
+    'simulation_time': 7*24*60e-3,
     
-    'num_of_agents' : 2,
+    'num_of_agents' : 10,
     
     'queue_waittime': 10e-3,
     
@@ -24,8 +24,8 @@ constants = {
     'return_time_proportion': 0.85,
 
     'long_local_trip_fare' : 0.41,
-    'short_local_trip_fare': 0.36,
-    'intercity_trip_fare': 0.28
+    'short_local_trip_fare': 0.41,
+    'intercity_trip_fare': 0.41
 }
 
 

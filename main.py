@@ -48,7 +48,8 @@ async def main():
     for i in range(constants['num_of_agents']):
         reasoning_engine = ComplexMoneyDrivenReasoningEngine() if i % 2 == 0 else None
         taxi_agent = TaxiDriverAgent(
-            jid='taxi_driver{}@your.xmpp.server'.format(i), 
+            #jid='taxi_driver{}@your.xmpp.server'.format(i), 
+            jid='taxi_driver{}@gtirouter.dsic.upv.es'.format(i), 
             password="password",
             queue=taxi_queue,
             semaphore = q_semaphore,
