@@ -16,7 +16,7 @@ class DriverState(Enum):
 
 class DriverFSMBehaviour(FSMBehaviour):
     async def on_start(self) -> None:
-        self.current_state = DriverState.SETUP
+        self.current_state = DriverState.SETUP.name
         print(f"Driver {self.agent.jid.localpart} starting at initial state {self.current_state}")
 
 class Setup(State):
@@ -24,9 +24,9 @@ class Setup(State):
     async def run(self) -> None:
         if self.agent.num_agents != self.agent.taxi_queue.len():
             await asyncio.sleep(5e-3)
-            self.set_next_state(DriverState.SETUP)
+            self.set_next_state(DriverState.SETUP.name)
         else:
-            self.set_next_state(DriverState.WAITING)
+            self.set_next_state(DriverState.WAITING.name)
 
 
 class Waiting(State):
@@ -45,11 +45,11 @@ class Waiting(State):
                 client_lookup_waittime = random.uniform(constants['client_waittime_lb'], constants['client_waittime_ub'])
                 await asyncio.sleep(client_lookup_waittime)
                 self.agent.add_worked_time(client_lookup_waittime)
-                self.set_next_state(DriverState.PICKING_UP)
+                self.set_next_state(DriverState.PICKING_UP.name)
             else:
                 done, _, _ = await self.agent.normative.perform("jump_queue")
                 if not done:
-                    self.set_next_state(DriverState.WAITING)
+                    self.set_next_state(DriverState.WAITING.name)
                 
 
 class PickingUp(State):
@@ -57,17 +57,18 @@ class PickingUp(State):
     async def run(self) -> None:
         self.agent.clients_at_sight = random.randint(1,6)
         print(f"[{self.agent.jid.localpart}] picking up state: {self.agent.clients_at_sight} clients")
-        #if random.random() > self.agent.reputation and self.agent.reputation < 0.60:
-        #    print(f"Clients rejected {self.agent.jid.localpart} due to low reputation: {self.agent.reputation}")
-        #    done = False
-        #else:
-        #    done, _, _ = await self.agent.normative.perform('pick_clients')
-        done, _, _ = await self.agent.normative.perform('pick_clients')
+        if random.random() > self.agent.reputation and self.agent.reputation < 0.6:
+           print(f"Clients rejected {self.agent.jid.localpart} due to low reputation: {self.agent.reputation}")
+           done = False
+        else:
+           done, _, _ = await self.agent.normative.perform('pick_clients')
+        # done, _, _ = await self.agent.normative.perform('pick_clients')
         if not done:
             self.agent.clients_at_sight = 0
+            self.agent.trip_duration = 0
             async with self.agent.q_semaphore:
                 self.agent.taxi_queue.remove_from_queue(self.agent.jid.localpart)
-            self.set_next_state(DriverState.JOINING_QUEUE)
+            self.set_next_state(DriverState.JOINING_QUEUE.name)
 
 
 class OnService(State):
@@ -79,7 +80,7 @@ class OnService(State):
         await asyncio.sleep(duration)
         self.agent.set_trip_duration(duration)
         self.agent.add_worked_time(duration)
-        self.set_next_state(DriverState.JOINING_QUEUE)
+        self.set_next_state(DriverState.JOINING_QUEUE.name)
 
 
 class JoiningQueue(State):
@@ -96,7 +97,7 @@ class JoiningQueue(State):
         done, _, _ = await self.agent.normative.perform('resume_work')
         if not done:
             self.agent.role = Role.RESTING_DRIVER
-            self.set_next_state(DriverState.RESTING)
+            self.set_next_state(DriverState.RESTING.name)
 
 
 class Resting(State):
@@ -110,4 +111,4 @@ class Resting(State):
             await asyncio.sleep(rest_time)
             self.agent.rest(rest_time)
             self.agent.reset_worked_time()
-            self.set_next_state(DriverState.RESTING)
+            self.set_next_state(DriverState.RESTING.name)

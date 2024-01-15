@@ -33,8 +33,8 @@ class ComplexMoneyDrivenReasoningEngine(NormativeReasoningEngine):
                 return random.random() < (math.pow(math.e, agent.total_time/1000) / math.pow(math.e, constants['simulation_time'])) * (1 - agent.earned_money/get_max_possible_money())
 
             if norm_response.action.name == 'jump_queue':
-                print(f'[{agent.jid.localpart}] jumping queue willingness:', (1 - math.pow(math.e, (agent.sucessful_pickup_count * compute_expected_time_per_job())) / math.pow(math.e, agent.total_time)))
-                return random.random() < (1 - math.pow(math.e, (agent.sucessful_pickup_count * compute_expected_time_per_job())/1000) / math.pow(math.e, agent.total_time))
+                print(f'[{agent.jid.localpart}] jumping queue willingness:', (1 - math.pow(math.e, (agent.sucessful_pickup_count * compute_expected_time_per_job())) / math.pow(math.e, agent.total_time/1000)))
+                return random.random() < (1 - math.pow(math.e, (agent.sucessful_pickup_count * compute_expected_time_per_job())/1000) / math.pow(math.e, agent.total_time/1000))
             
             if norm_response.action.name == 'resume_work':
                 print(f'[{agent.jid.localpart}] deciding if returning to work')

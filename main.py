@@ -61,14 +61,23 @@ async def main():
         )
 
         await taxi_agent.start()
+        taxi_agent.web.start(hostname="127.0.0.1", port=int(f'808{i}'))
         taxi_agent.join_queue_first_time()
 
         agents.append(taxi_agent)
     
     await asyncio.sleep(constants['simulation_time'])
+    # j = 0
+    # while j < constants['simulation_time']:
+    #     await asyncio.sleep(0.03)
 
     for i in range(constants['num_of_agents']):
-        print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[i].fatigue}; reputation: {agents[i].reputation}")
+        if i % 2 == 0:
+            print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[i].fatigue}; reputation: {agents[i].reputation}")
+    print()
+    for i in range(constants['num_of_agents']):
+        if i % 2 == 1:
+            print(f"agent: {agents[i].jid} -> earned money: {agents[i].earned_money}; fatigue: {agents[i].fatigue}; reputation: {agents[i].reputation}")
 
     exit()
 

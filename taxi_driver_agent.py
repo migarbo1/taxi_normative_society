@@ -35,24 +35,24 @@ class TaxiDriverAgent(NormativeMixin, Agent):
     async def setup(self) -> None:
         fsmb = DriverFSMBehaviour()
 
-        fsmb.add_state(name=DriverState.SETUP, state=Setup(), initial=True)
-        fsmb.add_state(name=DriverState.WAITING, state=Waiting())
-        fsmb.add_state(name=DriverState.PICKING_UP, state=PickingUp())
-        fsmb.add_state(name=DriverState.ON_SERVICE, state=OnService())
-        fsmb.add_state(name=DriverState.JOINING_QUEUE, state=JoiningQueue())
-        fsmb.add_state(name=DriverState.RESTING, state=Resting())
+        fsmb.add_state(name=DriverState.SETUP.name, state=Setup(), initial=True)
+        fsmb.add_state(name=DriverState.WAITING.name, state=Waiting())
+        fsmb.add_state(name=DriverState.PICKING_UP.name, state=PickingUp())
+        fsmb.add_state(name=DriverState.ON_SERVICE.name, state=OnService())
+        fsmb.add_state(name=DriverState.JOINING_QUEUE.name, state=JoiningQueue())
+        fsmb.add_state(name=DriverState.RESTING.name, state=Resting())
 
-        fsmb.add_transition(source=DriverState.SETUP, dest=DriverState.SETUP)
-        fsmb.add_transition(source=DriverState.SETUP, dest=DriverState.WAITING)
-        fsmb.add_transition(source=DriverState.WAITING, dest=DriverState.WAITING)
-        fsmb.add_transition(source=DriverState.WAITING, dest=DriverState.PICKING_UP)
-        fsmb.add_transition(source=DriverState.PICKING_UP, dest=DriverState.ON_SERVICE)
-        fsmb.add_transition(source=DriverState.PICKING_UP, dest=DriverState.JOINING_QUEUE)
-        fsmb.add_transition(source=DriverState.ON_SERVICE, dest=DriverState.JOINING_QUEUE)
-        fsmb.add_transition(source=DriverState.JOINING_QUEUE, dest=DriverState.WAITING)
-        fsmb.add_transition(source=DriverState.JOINING_QUEUE, dest=DriverState.RESTING)
-        fsmb.add_transition(source=DriverState.RESTING, dest=DriverState.WAITING)
-        fsmb.add_transition(source=DriverState.RESTING, dest=DriverState.RESTING)
+        fsmb.add_transition(source=DriverState.SETUP.name, dest=DriverState.SETUP.name)
+        fsmb.add_transition(source=DriverState.SETUP.name, dest=DriverState.WAITING.name)
+        fsmb.add_transition(source=DriverState.WAITING.name, dest=DriverState.WAITING.name)
+        fsmb.add_transition(source=DriverState.WAITING.name, dest=DriverState.PICKING_UP.name)
+        fsmb.add_transition(source=DriverState.PICKING_UP.name, dest=DriverState.ON_SERVICE.name)
+        fsmb.add_transition(source=DriverState.PICKING_UP.name, dest=DriverState.JOINING_QUEUE.name)
+        fsmb.add_transition(source=DriverState.ON_SERVICE.name, dest=DriverState.JOINING_QUEUE.name)
+        fsmb.add_transition(source=DriverState.JOINING_QUEUE.name, dest=DriverState.WAITING.name)
+        fsmb.add_transition(source=DriverState.JOINING_QUEUE.name, dest=DriverState.RESTING.name)
+        fsmb.add_transition(source=DriverState.RESTING.name, dest=DriverState.WAITING.name)
+        fsmb.add_transition(source=DriverState.RESTING.name, dest=DriverState.RESTING.name)
 
         self.add_behaviour(fsmb)
 
@@ -74,20 +74,21 @@ class TaxiDriverAgent(NormativeMixin, Agent):
     def add_income(self):
         applied_tax = 0
         applied_fare = 0
-        # Long local trip
-        if self.trip_duration < constants['long_local_trip_time']:
-            applied_tax = 2.3
-            applied_fare = constants['long_local_trip_fare']
-        # Local trip
-        if self.trip_duration <= constants['short_local_trip_time']: 
-            applied_tax = 1.15
-            applied_fare = constants['short_local_trip_fare']
-        # Intercity
-        if self.trip_duration >= constants['intercity_trip_time']:
-            applied_tax = 2.3
-            applied_fare = constants['intercity_trip_fare']
+        if self.trip_duration > 0:
+            # Long local trip
+            if self.trip_duration < constants['long_local_trip_time']:
+                applied_tax = 2.3
+                applied_fare = constants['long_local_trip_fare']
+            # Local trip
+            if self.trip_duration <= constants['short_local_trip_time']: 
+                applied_tax = 1.15
+                applied_fare = constants['short_local_trip_fare']
+            # Intercity
+            if self.trip_duration >= constants['intercity_trip_time']:
+                applied_tax = 2.3
+                applied_fare = constants['intercity_trip_fare']
 
-        self.earned_money += (applied_tax + self.trip_duration * 1000 * applied_fare)
+            self.earned_money += (applied_tax + self.trip_duration * 1000 * applied_fare)
 
 
     def reset_worked_time(self):

@@ -6,7 +6,7 @@ async def jump_queue(agent):
     agent.taxi_queue.remove_from_queue(agent.jid.localpart)
     agent.taxi_queue.add_to_start_of_queue(agent.jid.localpart)
     current_state_name = agent.behaviours[0].current_state
-    agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.PICKING_UP)
+    agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.PICKING_UP.name)
 
 
 async def resume_work(agent):
@@ -16,7 +16,7 @@ async def resume_work(agent):
         agent.role = Role.WORKING_DRIVER
         agent.taxi_queue.add_to_end_of_queue(agent.jid.localpart)
         current_state_name = agent.behaviours[0].current_state
-        agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.WAITING)
+        agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.WAITING.name)
 
 
 async def pickup_clients(agent):
@@ -27,4 +27,4 @@ async def pickup_clients(agent):
             agent.clients_picked = agent.clients_at_sight
             agent.clients_at_sight = 0
             current_state_name = agent.behaviours[0].current_state
-            agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.ON_SERVICE)
+            agent.behaviours[0]._states[current_state_name].set_next_state(DriverState.ON_SERVICE.name)
