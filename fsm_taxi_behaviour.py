@@ -48,8 +48,8 @@ class Waiting(State):
                 self.set_next_state(DriverState.PICKING_UP.name)
             else:
                 done, _, _ = await self.agent.normative.perform("jump_queue")
-                if not done:
-                    self.set_next_state(DriverState.WAITING.name)
+                self.agent.num_consecutive_waits += 1 if not done else 0
+                self.set_next_state(DriverState.PICKING_UP.name if done else DriverState.WAITING.name)
                 
 
 class PickingUp(State):
@@ -57,12 +57,12 @@ class PickingUp(State):
     async def run(self) -> None:
         self.agent.clients_at_sight = random.randint(1,6)
         print(f"[{self.agent.jid.localpart}] picking up state: {self.agent.clients_at_sight} clients")
-        if random.random() > self.agent.reputation and self.agent.reputation < 0.6:
+        if random.random() > self.agent.reputation :#and self.agent.reputation < 0.6:
            print(f"Clients rejected {self.agent.jid.localpart} due to low reputation: {self.agent.reputation}")
+           self.agent.num_jobs_lost += 1
            done = False
         else:
            done, _, _ = await self.agent.normative.perform('pick_clients')
-        # done, _, _ = await self.agent.normative.perform('pick_clients')
         if not done:
             self.agent.clients_at_sight = 0
             self.agent.trip_duration = 0

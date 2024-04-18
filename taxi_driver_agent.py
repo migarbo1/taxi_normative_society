@@ -1,7 +1,9 @@
+import threading
 from spade.agent import Agent
 from spade_norms.spade_norms import NormativeMixin
 from fsm_taxi_behaviour import *
 from problem_constants import *
+import asyncio
 import math
 
 
@@ -29,7 +31,12 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         self.clients_at_sight = 0
         self.sucessful_pickup_count = 0
 
+        self.num_consecutive_waits = 0
+        
+        self.num_jobs_lost = 0
+
         self.taxi_queue = queue
+        
 
 
     async def setup(self) -> None:
@@ -111,7 +118,7 @@ class TaxiDriverAgent(NormativeMixin, Agent):
         money_per_time = compute_expected_money_per_job()/compute_expected_time_per_job()
         if self.total_time == 0:
             return 1
-        print(f'Agent [{self.jid.localpart}]\'s will:', 1 - self.earned_money/(self.total_time*1000*money_per_time))
+        
         return 1 - self.earned_money/(self.total_time*1000*money_per_time)
 
 
@@ -123,6 +130,7 @@ class TaxiDriverAgent(NormativeMixin, Agent):
 
 
     def accumulate_fatigue(self, amount):
-        actual_fatigue = amount*1e3 / (100 * math.sqrt(amount*1e3)) if amount > 0 else 0
+        
+        actual_fatigue = amount/(12*60*1e-3)
         self.fatigue += actual_fatigue
         self.fatigue = min(1, self.fatigue)

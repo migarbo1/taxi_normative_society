@@ -34,12 +34,12 @@ def compute_num_shifts_in_simulation():
 
 
 def compute_expected_time_per_job():
-    num_shifts_in_simulation = compute_num_shifts_in_simulation()
-    return constants['queue_waittime'] + \
+    # num_shifts_in_simulation = compute_num_shifts_in_simulation()
+    return constants['queue_waittime']*constants['num_of_agents'] + \
         (constants['client_waittime_lb'] + constants['client_waittime_ub'])/2 + \
         (constants['trip_lb'] + constants['trip_ub'])/2 + \
         (constants['trip_lb'] + constants['trip_ub'])/2 * constants['return_time_proportion'] + \
-        constants['min_resting_time']/num_shifts_in_simulation
+        constants['min_resting_time']
 
 
 def compute_expected_money_per_job():
