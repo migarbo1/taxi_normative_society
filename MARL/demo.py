@@ -29,14 +29,14 @@ async def main():
     normative_engine = NormativeEngine(norm=n1)
 
     env_agent = EnvironmentAgent(
-        jid='env@gtirouter.dsic.upv.es', 
+        jid='env@your.xmpp.server', 
         password="password",
         episodes=10,
         steps_per_episode=20
     )
     taxi_agent = TaxiDriverAgent(
-        agent_env_jid='env@gtirouter.dsic.upv.es',
-        jid='taxidriver@gtirouter.dsic.upv.es', 
+        agent_env_jid='env@your.xmpp.server',
+        jid='taxidriver@your.xmpp.server', 
         password="password",
         num_features=11,
         num_actions=5,
